@@ -2,14 +2,14 @@
 
 import React, { useState } from 'react';
 import { getAuth, updatePassword } from 'firebase/auth';
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation';
 
 const SettingsPage = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const router = useRouter(); // Initialize router
+  const router = useRouter();
 
   const handleChangePassword = async () => {
     setError(null);
@@ -38,33 +38,66 @@ const SettingsPage = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: 'auto', padding: '20px' }}>
-      <h2>Settings</h2>
+    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '30px', border: '1px solid #ddd', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
 
-      <div>
-        <label>New Password:</label>
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#555' }}>New Password:</label>
         <input
           type="password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
+          style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }}
         />
       </div>
 
-      <div>
-        <label>Confirm Password:</label>
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#555' }}>Confirm Password:</label>
         <input
           type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
+          style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }}
         />
       </div>
 
-      <button onClick={handleChangePassword}>Change Password</button>
+      <button
+        onClick={handleChangePassword}
+        style={{
+          width: '100%',
+          padding: '12px',
+          backgroundColor: '#007bff',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          marginBottom: '10px',
+        }}
+        onMouseEnter={(e) => (e.target.style.backgroundColor = '#0056b3')}
+        onMouseLeave={(e) => (e.target.style.backgroundColor = '#007bff')}
+      >
+        Change Password
+      </button>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
+      {error && <p style={{ color: 'red', marginTop: '10px', textAlign: 'center' }}>{error}</p>}
+      {success && <p style={{ color: 'green', marginTop: '10px', textAlign: 'center' }}>{success}</p>}
 
-      <button onClick={() => router.back()}>Back</button> {/* Back button */}
+      <button
+        onClick={() => router.back()}
+        style={{
+          width: '100%',
+          padding: '10px',
+          backgroundColor: '#f0f0f0',
+          color: '#333',
+          border: '1px solid #ddd',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          marginTop: '20px',
+        }}
+        onMouseEnter={(e) => (e.target.style.backgroundColor = '#e0e0e0')}
+        onMouseLeave={(e) => (e.target.style.backgroundColor = '#f0f0f0')}
+      >
+        Back
+      </button>
     </div>
   );
 };
