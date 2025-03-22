@@ -16,23 +16,23 @@ const AuthCheck = ({ children }) => {
         setUser(authUser);
       } else {
         setUser(null);
-        router.push('/login'); // Redirect to login if not authenticated.
+        router.push('/login');
       }
       setLoading(false);
     });
 
-    return () => unsubscribe(); // Cleanup listener on unmount.
+    return () => unsubscribe();
   }, [router]);
 
   if (loading) {
-    return <div>Loading...</div>; // Or a loading spinner
+    return <div>Loading...</div>;
   }
 
   if (!user) {
-    return null; // AuthCheck already redirects, nothing to render.
+    return null;
   }
 
-  return <>{children}</>; // Render the protected content.
+  return <>{children}</>; 
 };
 
 export default AuthCheck;

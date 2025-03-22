@@ -12,24 +12,19 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
 
     try {
-      const email = `${username}@example.com`; // Static string: @example.com
+      const email = `${username}@example.com`;
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        if (userData.isAdmin) {
-          router.push('/dashboard'); // Route to admin dashboard
-        } else {
-          router.push('/'); // Route to surveys for regular users
-        }
+          router.push('/');
       }
     } catch (err) {
       setError('Invalid credentials');
@@ -67,8 +62,7 @@ const LoginPage = () => {
             Password
           </label>
           <input
-            type={showPassword ? 'text' : 'password'}
-            id="password"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             style={{ width: '100%', padding: '10px', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '4px' }}

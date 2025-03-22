@@ -9,8 +9,6 @@ import RecordRTC from 'recordrtc';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { FaMicrophone, FaStop } from 'react-icons/fa';
 
-// Modal.setAppElement('#__next');
-
 const HomePage = () => {
   const [surveys, setSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +19,9 @@ const HomePage = () => {
   const [recordingFieldName, setRecordingFieldName] = useState(null);
 
   useEffect(() => {
+    if (typeof document !== 'undefined') {
+      Modal.setAppElement(document.getElementById('__next')); 
+    }
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -50,24 +51,13 @@ const HomePage = () => {
 
   const startEditing = (survey) => {
     setEditingSurvey({ ...survey });
-  };
-
-  const cancelEditing = () => {
-    setEditingSurvey(null);
-  };
-
-  const saveEditedSurvey = async () => {
-    const surveyDoc = doc(db, 'surveys', editingSurvey.id);
-    await updateDoc(surveyDoc, {
-      question1: editingSurvey.question1,
-      answer1: editingSurvey.answer1,
-      question2: editingSurvey.question2,
-      answer2: editingSurvey.answer2,
+    setNewSurvey({
+      answer1: survey.answerUrl1 || '',
+      answer2: survey.answerUrl2 || '',
     });
-    setEditingSurvey(null);
-    window.location.reload();
+    setIsModalOpen(true);
   };
-
+  
   const deleteSurvey = async (id, answerUrl1, answerUrl2) => {
     try {
       const surveyDoc = doc(db, 'surveys', id);
@@ -91,10 +81,12 @@ const HomePage = () => {
   const openModal = () => {
     setIsModalOpen(true);
     setNewSurvey({ question1: '', answer1: '', question2: '', answer2: '' });
+    setEditingSurvey(null);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setEditingSurvey(null);
   };
 
   const submitNewSurvey = async () => {
@@ -103,28 +95,36 @@ const HomePage = () => {
   
     if (user) {
       try {
-        const answer1Ref = ref(storage, `audio/${user.uid}/${Date.now()}-answer1.webm`);
-        const answer2Ref = ref(storage, `audio/${user.uid}/${Date.now()}-answer2.webm`);
-        console.log(answer1Ref);
+        let answer1Url = newSurvey.answer1;
+        let answer2Url = newSurvey.answer2;
 
-        const [answer1Snapshot, answer2Snapshot] = await Promise.all([
-          uploadBytes(answer1Ref, newSurvey.answer1),
-          uploadBytes(answer2Ref, newSurvey.answer2),
-        ]);
-  
-        const [answer1Url, answer2Url] = await Promise.all([
-          getDownloadURL(answer1Snapshot.ref),
-          getDownloadURL(answer2Snapshot.ref),
-        ]);
-  
-        await addDoc(collection(db, 'surveys'), {
-          question1: 'What is your favourite colour?',
-          question2: 'What is your favourite fruit?',
-          answerUrl1: answer1Url,
-          answerUrl2: answer2Url,
-          userId: user.uid,
-        });
-  
+        if (typeof newSurvey.answer1 !== 'string') {
+          const answer1Ref = ref(storage, `audio/${user.uid}/${Date.now()}-answer1.webm`);
+          const answer1Snapshot = await uploadBytes(answer1Ref, newSurvey.answer1);
+          answer1Url = await getDownloadURL(answer1Snapshot.ref);
+        }
+
+        if (typeof newSurvey.answer2 !== 'string') {
+          const answer2Ref = ref(storage, `audio/${user.uid}/${Date.now()}-answer2.webm`);
+          const answer2Snapshot = await uploadBytes(answer2Ref, newSurvey.answer2);
+          answer2Url = await getDownloadURL(answer2Snapshot.ref);
+        }
+
+        if (editingSurvey) {
+          await updateDoc(doc(db, 'surveys', editingSurvey.id), {
+            answerUrl1: answer1Url,
+            answerUrl2: answer2Url,
+          });
+        } else {
+          await addDoc(collection(db, 'surveys'), {
+            question1: 'What is your favourite colour?',
+            question2: 'What is your favourite fruit?',
+            answerUrl1: answer1Url,
+            answerUrl2: answer2Url,
+            userId: user.uid,
+          });
+        }
+
         closeModal();
         window.location.reload();
       } catch (error) {
@@ -163,14 +163,6 @@ const HomePage = () => {
 
   return (
     <div style={{ maxWidth: '800px', margin: '50px auto', padding: '30px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', borderRadius: '8px' }}>
-      {/* About Me */}
-      <div style={{ marginBottom: '30px' }}>
-        <h3 style={{ color: '#333', marginBottom: '10px' }}>About Me</h3>
-        <p style={{ lineHeight: '1.6', color: '#555' }}>
-          I am a year 2 Computer Science student from SMU. Outside of academics, I have a unique fascination with fragrances and enjoy exploring the world of scents. My skillsets include Java, Python, C, and Next.js.
-        </p>
-      </div>
-
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2 style={{ color: '#333' }}>Completed Surveys</h2>
         <button
@@ -182,7 +174,7 @@ const HomePage = () => {
           Add new entry
         </button>
       </div>
-
+      {/* Table of surveys */}
       <table style={{ width: '100%', borderCollapse: 'collapse', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', borderRadius: '8px', overflow: 'hidden' }}>
       <thead>
         <tr style={{ backgroundColor: '#f9f9f9', borderBottom: '2px solid #eee' }}>
@@ -271,7 +263,7 @@ const HomePage = () => {
       <div style={{ marginBottom: '20px' }}>
         <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>What is your favourite colour?</p>
         {newSurvey.answer1 && (
-          <audio controls src={URL.createObjectURL(newSurvey.answer1)} style={{ marginTop: '10px' }} />
+            <audio controls src={typeof newSurvey.answer1 === 'string' ? newSurvey.answer1 : URL.createObjectURL(newSurvey.answer1)} style={{ marginTop: '10px' }} />
         )}
         <button
           onClick={() => handleSpeechInput('answer1')}
@@ -303,7 +295,7 @@ const HomePage = () => {
       <div style={{ marginBottom: '20px' }}>
         <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>What is your favourite fruit?</p>
         {newSurvey.answer2 && (
-          <audio controls src={URL.createObjectURL(newSurvey.answer2)} style={{ marginTop: '10px' }} />
+            <audio controls src={typeof newSurvey.answer2 === 'string' ? newSurvey.answer2 : URL.createObjectURL(newSurvey.answer2)} style={{ marginTop: '10px' }} />
         )}
         <button
           onClick={() => handleSpeechInput('answer2')}
@@ -345,7 +337,7 @@ const HomePage = () => {
             fontSize: '16px',
           }}
         >
-          Submit
+          {editingSurvey ? 'Update' : 'Submit'}
         </button>
         <button
           onClick={closeModal}
@@ -363,6 +355,13 @@ const HomePage = () => {
         </button>
       </div>
     </Modal>
+    {/* About Me */}
+    <div style={{ marginTop: '5%' }}>
+      <h3 style={{ color: '#333', marginBottom: '10px' }}>About Me</h3>
+      <p style={{ lineHeight: '1.6', color: '#555' }}>
+        I'm a second-year Computer Science student at SMU. Beyond the realm of algorithms and code, I harbor a deep and rather unique passion for the intricate art of perfumery. Exploring the nuanced world of fragrances is a constant source of fascination for me, where each scent tells a story. On the technical side, I'm proficient in a range of programming languages, including Java, Python, and C, and I've recently been diving into the front-end development possibilities of Next.js. I'm always eager to learn and apply my skills to create meaningful and innovative projects, whether it's crafting elegant code or deciphering the complexities of a new fragrance.
+      </p>
+    </div>
   </div>
   );
 };
