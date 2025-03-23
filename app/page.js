@@ -14,7 +14,7 @@ const RecordRTC = dynamic(() => import('recordrtc'), { ssr: false });
 
 const HomePage = () => {
   const [surveys, setSurveys] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(true);
   const [editingSurvey, setEditingSurvey] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newSurvey, setNewSurvey] = useState({ question1: 'What is your favourite colour?', answer1: '', question2: 'What is your favourite fruit?', answer2: '' });
@@ -104,22 +104,34 @@ const HomePage = () => {
     const user = auth.currentUser;
   
     if (user) {
+
+      if (!newSurvey.answer1) {
+        window.alert('Please record an answer for the first question.');
+        return;
+      }
+      if (!newSurvey.answer2) {
+        window.alert('Please record an answer for the second question.');
+        return;
+      }
+
+      setLoading(true);
+  
       try {
         let answer1Url = newSurvey.answer1;
         let answer2Url = newSurvey.answer2;
-
+  
         if (typeof newSurvey.answer1 !== 'string') {
           const answer1Ref = ref(storage, `audio/${user.uid}/${Date.now()}-answer1.webm`);
           const answer1Snapshot = await uploadBytes(answer1Ref, newSurvey.answer1);
           answer1Url = await getDownloadURL(answer1Snapshot.ref);
         }
-
+  
         if (typeof newSurvey.answer2 !== 'string') {
           const answer2Ref = ref(storage, `audio/${user.uid}/${Date.now()}-answer2.webm`);
           const answer2Snapshot = await uploadBytes(answer2Ref, newSurvey.answer2);
           answer2Url = await getDownloadURL(answer2Snapshot.ref);
         }
-
+  
         if (editingSurvey) {
           await updateDoc(doc(db, 'surveys', editingSurvey.id), {
             answerUrl1: answer1Url,
@@ -134,13 +146,13 @@ const HomePage = () => {
             userId: user.uid,
           });
         }
-
+  
         closeModal();
         window.location.reload();
       } catch (error) {
         console.error('Error submitting survey: ', error);
       }
-    } else { 
+    } else {
       console.error('User not authenticated');
     }
   };
@@ -175,10 +187,6 @@ const HomePage = () => {
       console.error('navigator.mediaDevices is not available in this environment.');
     }
   };
-
-  if (loading) {
-    return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
-  }
 
   return (
     <div style={{ maxWidth: '800px', margin: '50px auto', padding: '30px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', borderRadius: '8px' }}>
@@ -253,6 +261,45 @@ const HomePage = () => {
         ))}
       </tbody>
     </table>
+
+    {/* Loading Spinner */}
+    {isLoading && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1001,
+          }}
+        >
+          <div
+            style={{
+              border: '4px solid #f3f3f3',
+              borderTop: '4px solid #3498db',
+              borderRadius: '50%',
+              width: '50px',
+              height: '50px',
+              animation: 'spin 2s linear infinite',
+            }}
+          ></div>
+          <style jsx>{`
+            @keyframes spin {
+              0% {
+                transform: rotate(0deg);
+              }
+              100% {
+                transform: rotate(360deg);
+              }
+            }
+          `}</style>
+        </div>
+      )}
 
     {/* Modal for new entry*/}
     <Modal
