@@ -155,11 +155,20 @@ const HomePage = () => {
           setRecordingFieldName(null);
         });
       } else {
-        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-          const rec = RecordRTC(stream, { type: 'audio' });
-          rec.startRecording();
-          setRecorder(rec);
-          setRecordingFieldName(fieldName);
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(async (stream) => {
+          try {
+            const RecordRTCModule = await import('recordrtc');
+            if (RecordRTCModule && RecordRTCModule.default) {
+              const rec = new RecordRTCModule.default(stream, { type: 'audio' });
+              rec.startRecording();
+              setRecorder(rec);
+              setRecordingFieldName(fieldName);
+            } else {
+              console.error('RecordRTC is not available.');
+            }
+          } catch (importError) {
+            console.error('Error importing RecordRTC:', importError);
+          }
         });
       }
     } else {
