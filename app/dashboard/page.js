@@ -65,12 +65,25 @@ const AdminDashboard = () => {
   const handleDelete = async (userId) => {
     try {
       if (window.confirm('Are you sure you want to delete this user?')) {
-        const userDocRef = doc(db, 'users', userId);
-        await deleteDoc(userDocRef);
-        window.location.reload();
+        const response = await fetch('/api/deleteUser', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId }),
+        });
+  
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          const errorData = await response.json();
+          console.error('Error deleting user:', errorData);
+          alert('Failed to delete user. See console for details.');
+        }
       }
     } catch (error) {
       console.error('Error deleting user:', error);
+      alert('An unexpected error occurred. See console for details.');
     }
   };
 
