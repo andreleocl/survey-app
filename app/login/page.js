@@ -88,7 +88,7 @@ const LoginPage = () => {
       </form>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <p>Don't have an account?</p>
-        <a href ="/register">Sign up</a>
+        <a href ="/register" style={{textDecoration: 'underline', color: 'purple'}}>Sign up</a>
       </div>
     </div>
   );

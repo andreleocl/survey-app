@@ -7,6 +7,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Modal from 'react-modal';
 import dynamic from 'next/dynamic';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { useRouter } from 'next/navigation';
 import { FaMicrophone, FaStop } from 'react-icons/fa';
 
 const RecordRTC = dynamic(() => import('recordrtc'), { ssr: false });
@@ -19,6 +20,7 @@ const HomePage = () => {
   const [newSurvey, setNewSurvey] = useState({ question1: 'What is your favourite colour?', answer1: '', question2: 'What is your favourite fruit?', answer2: '' });
   const [recorder, setRecorder] = useState(null);
   const [recordingFieldName, setRecordingFieldName] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -26,7 +28,10 @@ const HomePage = () => {
     }
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
+      if (!user) { 
+        router.push('/login');
+        return;
+      } else {
         setLoading(true);
         try {
           const querySnapshot = await getDocs(collection(db, 'surveys'));
@@ -42,9 +47,6 @@ const HomePage = () => {
         } finally {
           setLoading(false);
         }
-      } else {
-        setSurveys([]);
-        setLoading(false);
       }
     });
 
