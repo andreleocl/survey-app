@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Survey Application - GenVoice Technical Screening
 
-## Getting Started
+This is a full-stack web application developed for the GenVoice technical screening. It fulfills the requirements outlined in the task description, including mock authentication, user registration, survey CRUD functionality with voice input, user settings, and admin user management.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+* **User Registration:**
+    * Ability to create new user accounts with username and password.
+* **Survey Management (CRUD):**
+    * Display of completed surveys in a table.
+    * Ability to view, update, and delete survey entries.
+    * Ability to create new survey entries.
+* **Voice Input Surveys:**
+    * Surveys consist of two questions.
+    * Answers to survey questions must be provided via voice input.
+* **Personal Write-up:**
+    * A section about my skills and experience.
+* **User Settings:**
+    * A settings page where users can change their passwords.
+* **Admin User Management:**
+    * A dedicated admin page for CRUD operations on all user accounts.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technologies Used
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+* **Frontend:**
+    * Next.js
+    * React
+* **Voice Input:**
+    * RecordRTC
+* **Database:**
+    * Firebase Firestore
+* **Deployment:**
+    * Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Installation and Setup
 
-## Learn More
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/andreleocl/survey-app.git
+    ```
+2.  **Navigate to the project directory:**
+    ```bash
+    cd survey-app
+    ```
+3.  **Install dependencies:**
+    * Frontend: `npm install` or `yarn install`
+4.  **Run the application:**
+    * Frontend: `npm run dev` or `yarn dev`
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The application is deployed at: https://survey-app-rose.vercel.app/
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Author
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* Andre Leo - https://github.com/andreleocl
