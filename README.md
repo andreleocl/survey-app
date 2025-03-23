@@ -43,9 +43,9 @@ This is a full-stack web application developed for the GenVoice technical screen
     cd survey-app
     ```
 3.  **Install dependencies:**
-    * Frontend: `npm install` or `yarn install`
+    * `npm install` or `yarn install`
 4.  **Run the application:**
-    * Frontend: `npm run dev` or `yarn dev`
+    * `npm run dev` or `yarn dev`
 
 ## Deployment
 
