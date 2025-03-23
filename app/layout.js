@@ -30,6 +30,7 @@ export default function RootLayout({ children }) {
         }
       } else {
         setIsAdmin(false);
+        router.push('/login');
       }
     });
 
