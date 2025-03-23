@@ -18,6 +18,16 @@ const RegisterPage = () => {
     e.preventDefault();
     setError(null);
 
+    if (!username.trim()) {
+      setError('Please enter a valid username.');
+      return;
+    }
+
+    if (!password.trim()) {
+      setError('Please enter a password');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
@@ -36,7 +46,7 @@ const RegisterPage = () => {
 
       router.push('/');
     } catch (err) {
-      setError(err.message);
+      console.log(err);
     }
   };
 

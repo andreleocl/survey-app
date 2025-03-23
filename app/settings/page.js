@@ -15,6 +15,16 @@ const SettingsPage = () => {
     setError(null);
     setSuccess(null);
 
+    if (!newPassword.trim()) {
+      setError('Please enter a password');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setError('Password should be at least 6 characters');
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       setError('Passwords do not match.');
       return;
