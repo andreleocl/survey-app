@@ -5,9 +5,11 @@ import { db, storage } from './utils/firebase';
 import { collection, getDocs, doc, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Modal from 'react-modal';
-import RecordRTC from 'recordrtc';
+import dynamic from 'next/dynamic';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { FaMicrophone, FaStop } from 'react-icons/fa';
+
+const RecordRTC = dynamic(() => import('recordrtc'), { ssr: false });
 
 const HomePage = () => {
   const [surveys, setSurveys] = useState([]);
@@ -59,22 +61,28 @@ const HomePage = () => {
   };
   
   const deleteSurvey = async (id, answerUrl1, answerUrl2) => {
-    try {
-      const surveyDoc = doc(db, 'surveys', id);
-      await deleteDoc(surveyDoc);
-
-      if (answerUrl1) {
-        const answer1Ref = ref(storage, answerUrl1);
-        await deleteObject(answer1Ref);
+    const confirmation = window.confirm(
+      'Are you sure you want to delete this survey?'
+    );
+    
+    if (confirmation) {
+      try {
+        const surveyDoc = doc(db, 'surveys', id);
+        await deleteDoc(surveyDoc);
+  
+        if (answerUrl1) {
+          const answer1Ref = ref(storage, answerUrl1);
+          await deleteObject(answer1Ref);
+        }
+        if (answerUrl2) {
+          const answer2Ref = ref(storage, answerUrl2);
+          await deleteObject(answer2Ref);
+        }
+  
+        setSurveys(surveys.filter((survey) => survey.id !== id));
+      } catch (error) {
+        console.error('Error deleting survey:', error);
       }
-      if (answerUrl2) {
-        const answer2Ref = ref(storage, answerUrl2);
-        await deleteObject(answer2Ref);
-      }
-
-      setSurveys(surveys.filter((survey) => survey.id !== id));
-    } catch (error) {
-      console.error('Error deleting survey:', error);
     }
   };
 
@@ -130,7 +138,7 @@ const HomePage = () => {
       } catch (error) {
         console.error('Error submitting survey: ', error);
       }
-    } else {
+    } else { 
       console.error('User not authenticated');
     }
   };
