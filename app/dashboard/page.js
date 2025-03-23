@@ -54,7 +54,6 @@ const AdminDashboard = () => {
   const handleSave = async (userId, updatedUser) => {
     try {
       const userDocRef = doc(db, 'users', userId);
-      updatedUser.email = `${updatedUser.username}@example.com`;
       await updateDoc(userDocRef, updatedUser);
       setEditingUser(null);
       window.location.reload();
@@ -98,7 +97,7 @@ const AdminDashboard = () => {
           {users.map((user) => (
             <tr key={user.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
               <td style={{ padding: '12px', textAlign: 'left', color: '#444' }}>
-                {editingUser && editingUser.id === user.id ? <input type="text" value={editingUser.username} onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })} /> : user.username}
+                {user.username}
               </td>
               <td style={{ padding: '12px', textAlign: 'center', color: '#444' }}>
                 {editingUser && editingUser.id === user.id ? (

@@ -427,6 +427,18 @@ const HomePage = () => {
       <p style={{ lineHeight: '1.6', color: '#555' }}>
         I'm a second-year Computer Science student at SMU. Beyond the realm of algorithms and code, I harbor a deep and rather unique passion for the intricate art of perfumery. Exploring the nuanced world of fragrances is a constant source of fascination for me, where each scent tells a story. On the technical side, I'm proficient in a range of programming languages, including Java, Python, and C, and I've recently been diving into the front-end development possibilities of Next.js. I'm always eager to learn and apply my skills to create meaningful and innovative projects, whether it's crafting elegant code or deciphering the complexities of a new fragrance.
       </p>
+      <a
+        href="https://www.linkedin.com/in/andre-leo/"
+        style={{
+          marginTop: '4%',
+          display: 'inline-flex',
+          alignItems: 'center',
+          textDecoration: 'none',
+          color: '#0366d6',
+        }}
+      >
+        Link to GitHub
+      </a>
     </div>
   </div>
   );
