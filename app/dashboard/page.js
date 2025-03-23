@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../utils/firebase';
 import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { updatePassword } from 'firebase/auth';
 import AuthCheck from '../components/AuthCheck';
 import { useRouter } from 'next/navigation';
 
@@ -11,6 +12,9 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [changingPasswordUserId, setChangingPasswordUserId] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [editingPasswordUserId, setEditingPasswordUserId] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -49,16 +53,42 @@ const AdminDashboard = () => {
 
   const handleEdit = (user) => {
     setEditingUser({ ...user });
+    setEditingPasswordUserId(user.id);
   };
+
+  const closeEdit = () => {
+    setEditingUser(null);
+    setEditingPasswordUserId(null);
+    setNewPassword('');
+  }
 
   const handleSave = async (userId, updatedUser) => {
     try {
+      if (editingPasswordUserId === userId && newPassword) {
+        const response = await fetch('/api/updateUserPassword', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId, newPassword }),
+        });
+
+        if (response.ok) {
+          setEditingPasswordUserId(null);
+          alert('Password updated successfully!');
+        } else {
+          const errorData = await response.json();
+          alert(`Failed to update password: ${errorData.error}`);
+        }
+      }
+
       const userDocRef = doc(db, 'users', userId);
       await updateDoc(userDocRef, updatedUser);
       setEditingUser(null);
       window.location.reload();
     } catch (error) {
       console.error('Error updating user:', error);
+      alert('Failed to update user. See console for details.');
     }
   };
 
@@ -87,6 +117,22 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleChangePassword = (userId) => {
+    setChangingPasswordUserId(userId);
+    setNewPassword('');
+  };
+
+  const handlePasswordSave = async (userId) => {
+    try {
+      await auth.updateUser(userId, { password: newPassword });
+      setEditingPasswordUserId(null);
+      alert('Password updated successfully!');
+    } catch (error) {
+      console.error('Error updating password:', error);
+      alert('Failed to update password. See console for details.');
+    }
+  };
+
   if (loading) {
     return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
   }
@@ -103,6 +149,7 @@ const AdminDashboard = () => {
           <tr style={{ backgroundColor: '#f9f9f9', borderBottom: '2px solid #eee' }}>
             <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#333' }}>Username</th>
             <th style={{ padding: '15px', textAlign: 'center', fontWeight: '600', color: '#333' }}>isAdmin</th>
+            <th style={{ padding: '15px', textAlign: 'center', fontWeight: '600', color: '#333' }}>Change Password</th>
             <th style={{ padding: '15px', textAlign: 'center', fontWeight: '600', color: '#333' }}>Actions</th>
           </tr>
         </thead>
@@ -123,10 +170,25 @@ const AdminDashboard = () => {
                 )}
               </td>
               <td style={{ padding: '12px', textAlign: 'center' }}>
+                {editingPasswordUserId === user.id ? (
+                  <>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="New Password"
+                      style={{ marginRight: '8px', padding: '4px', border: '1px solid #ddd', borderRadius: '4px' }}
+                    />
+                  </>
+                ) : (
+                  <span>********</span>
+                )}
+              </td>
+              <td style={{ padding: '12px', textAlign: 'center' }}>
                 {editingUser && editingUser.id === user.id ? (
                   <>
                     <button onClick={() => handleSave(user.id, editingUser)} style={{ padding: '8px 12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', marginRight: '5px' }}>Save</button>
-                    <button onClick={() => setEditingUser(null)} style={{ padding: '8px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }}>Cancel</button>
+                    <button onClick={() => closeEdit(null)} style={{ padding: '8px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }}>Cancel</button>
                   </>
                 ) : (
                   <>
