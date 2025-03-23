@@ -49,7 +49,7 @@ const SettingsPage = () => {
 
   return (
     <div style={{ maxWidth: '400px', margin: '50px auto', padding: '30px', border: '1px solid #ddd', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
-
+      <h2 style={{ textAlign: 'center', marginBottom: '25px', color: '#333' }}>Change Password</h2>
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#555' }}>New Password:</label>
         <input
